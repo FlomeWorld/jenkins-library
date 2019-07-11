@@ -136,7 +136,8 @@ void call(Map parameters = [:], body) {
             if (env.POD_NAME && isContainerDefined(config)) {
                 container(getContainerDefined(config)) {
                     echo "[INFO][${STEP_NAME}] Executing inside a Kubernetes Container."
-                    body()
+                    sh "ls -lrt"
+                    //body()
                     sh "chown -R 1000:1000 ."
                 }
             } else {
