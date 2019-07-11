@@ -191,9 +191,10 @@ void executeOnPod(Map config, utils, Closure body) {
                     container(containerParams){
                         try {
                             utils.unstashAll(stashContent)
-                            echo "Unstash completed"
+                            echo "Unstash completed ${containerParams}"
                             //body()
                         } finally {
+                            echo "in finally"
                             stashWorkspace(config, 'container', true)
                         }
                     }
@@ -278,7 +279,6 @@ private List getContainerList(config) {
 
         def configuredCommand = config.containerCommands?.get(imageName)
         def shell = config.containerShell ?: '/bin/sh'
-        configuredCommand=""
         if (configuredCommand == null) {
             containerSpec['command'] = [
                 '/usr/bin/tail',
@@ -311,6 +311,7 @@ private List getContainerList(config) {
         }
         result.push(containerSpec)
     }
+    echo "result is ${result}"
     return result
 }
 
