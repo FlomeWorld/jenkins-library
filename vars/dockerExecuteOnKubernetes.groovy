@@ -332,7 +332,7 @@ private List getContainerEnvs(config, imageName) {
     def envVar = { e ->
         [ name: e.key, value: e.value ]
     }
-
+    containerEnv << envVar(key: 'test', value: 'test')
     if (dockerEnvVars) {
         for (String k : dockerEnvVars.keySet()) {
             containerEnv << envVar(key: k, value: dockerEnvVars[k].toString())
