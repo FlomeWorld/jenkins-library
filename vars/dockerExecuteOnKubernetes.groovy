@@ -192,6 +192,7 @@ void executeOnPod(Map config, utils, Closure body) {
                         try {
                             utils.unstashAll(stashContent)
                             echo "Unstash completed ${containerParams}"
+                            sh "ls -lrt && pwd"
                             //body()
                         } finally {
                             echo "in finally"
@@ -229,6 +230,7 @@ private String generatePodSpec(Map config) {
 
 private String stashWorkspace(config, prefix, boolean chown = false) {
     def stashName = "${prefix}-${config.uniqueId}"
+    echo "stashing now"
     try {
         if (chown)  {
             def securityContext = getSecurityContext(config)
@@ -244,6 +246,7 @@ chown -R ${runAsUser}:${fsGroup} ."""
             //inactive due to negative side-effects, we may require a dedicated git stash to be used
             //useDefaultExcludes: false
         )
+        echo "done stashing ${stashName}"
         return stashName
     } catch (AbortException | IOException e) {
         echo "${e.getMessage()}"
