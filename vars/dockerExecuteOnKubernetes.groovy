@@ -187,11 +187,12 @@ void executeOnPod(Map config, utils, Closure body) {
                     if (config.containerShell) {
                         containerParams.shell = config.containerShell
                     }
-                    echo "ContainerConfig: ${containerParams}"
+                    echo "ContainerConfig: ${config}"
                     container(containerParams){
                         try {
                             utils.unstashAll(stashContent)
-                            body()
+                            echo "Unstash completed"
+                            //body()
                         } finally {
                             stashWorkspace(config, 'container', true)
                         }
