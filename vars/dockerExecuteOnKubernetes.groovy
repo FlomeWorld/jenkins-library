@@ -281,7 +281,7 @@ private List getContainerList(config) {
         ]
 
         def configuredCommand = config.containerCommands?.get(imageName)
-        def shell = config.containerShell ?: '/bin/sh'
+        def shell = config.containerShell ?: '/bin/bash'
         if (configuredCommand == null) {
             containerSpec['command'] = [
                 '/usr/bin/tail',
