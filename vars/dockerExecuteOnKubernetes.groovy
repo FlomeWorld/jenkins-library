@@ -140,6 +140,7 @@ void call(Map parameters = [:], body) {
             config.containerMap = ["${config.get('dockerImage')}": config.containerName]
             config.containerCommands = config.containerCommand ? ["${config.get('dockerImage')}": config.containerCommand] : null
         }
+        echo "Config in step ${config}"
         executeOnPod(config, utils, body)
     }
 }
@@ -160,6 +161,7 @@ def getOptions(config) {
     if (!config.verbose) {
         options.showRawYaml = false
     }
+    echo "Config in options ${config} and ${options}"
     return options
 }
 
@@ -223,8 +225,8 @@ private String generatePodSpec(Map config) {
             containers: containers
         ]
     ]
-    //podSpec.spec.securityContext = getSecurityContext(config)
-
+    podSpec.spec.securityContext = getSecurityContext(config)
+   echo "Config in podSpec ${config} and ${podSpec}"
     return new JsonUtils().groovyObjectToPrettyJsonString(podSpec)
 }
 
@@ -316,6 +318,7 @@ private List getContainerList(config) {
         }
         result.push(containerSpec)
     }
+     echo "Config in containerList ${config} and ${result}"
     return result
 }
 
@@ -353,6 +356,6 @@ private List getContainerEnvs(config, imageName) {
     if (!containerEnv) {	
         containerEnv << envVar(key: "EMPTY_VAR", value: "EMPTY_VAR")	
     }
-
+echo "Config in containerEnv ${config} and ${containerEnv}"
     return containerEnv
 }
