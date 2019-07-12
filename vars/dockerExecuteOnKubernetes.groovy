@@ -219,7 +219,7 @@ private String generatePodSpec(Map config) {
             containers: containers
         ]
     ]
-    //podSpec.spec.securityContext = getSecurityContext(config)
+    podSpec.spec.securityContext = getSecurityContext(config)
 
     return new JsonUtils().groovyObjectToPrettyJsonString(podSpec)
 }
@@ -279,9 +279,19 @@ private List getContainerList(config) {
         def shell = config.containerShell ?: '/bin/sh'
         if (configuredCommand == null) {
             containerSpec['command'] = [
-                '/usr/bin/tail','-f',' /dev/null'
+                '/usr/bin/tail',
+                '-f',
+                '/dev/null'
             ]
-        } 
+        } else if(configuredCommand != "") {
+            // apparently "" is used as a flag for not settings container commands !?
+            containerSpec['command'] =
+                    (configuredCommand in List) ? configuredCommand : [
+                        shell,
+                        '-c',
+                        configuredCommand
+                    ]
+        }
 
         if (config.containerPortMappings?.get(imageName)) {
             def ports = []
