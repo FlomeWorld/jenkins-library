@@ -230,6 +230,7 @@ private List getContainerList(config) {
         }
         result.push(containerTemplate(templateParameters))
     }
+    echo "containers : ${result}"
     return result
 }
 
