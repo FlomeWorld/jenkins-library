@@ -197,7 +197,6 @@ void executeOnPod(Map config, utils, Closure body) {
                         }
                     }
                 } else {
-                    echo "else part"
                     body()
                 }
             }
@@ -276,7 +275,13 @@ private List getContainerList(config) {
             env: getContainerEnvs(config, imageName)
         ]
 
-         containerSpec['command'] = '/usr/bin/tail -f /dev/null'
+        def configuredCommand = config.containerCommands?.get(imageName)
+        def shell = config.containerShell ?: '/bin/sh'
+        if (configuredCommand == null) {
+            containerSpec['command'] = [
+                '/usr/bin/tail -f /dev/null'
+            ]
+        } 
 
         if (config.containerPortMappings?.get(imageName)) {
             def ports = []
