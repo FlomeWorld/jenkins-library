@@ -187,19 +187,17 @@ void executeOnPod(Map config, utils, Closure body) {
                     if (config.containerShell) {
                         containerParams.shell = config.containerShell
                     }
-                    echo "ContainerConfig: ${config}"
+                    echo "ContainerConfig: ${containerParams}"
                     container(containerParams){
                         try {
                             utils.unstashAll(stashContent)
-                            echo "Unstash completed ${containerParams}"
-                            sh "ls -lrt && pwd"
-                            //body()
+                            body()
                         } finally {
-                            echo "in finally"
                             stashWorkspace(config, 'container', true)
                         }
                     }
                 } else {
+                    echo "else part"
                     body()
                 }
             }
@@ -222,7 +220,7 @@ private String generatePodSpec(Map config) {
             containers: containers
         ]
     ]
-   podSpec.spec.securityContext = getSecurityContext(config)
+    podSpec.spec.securityContext = getSecurityContext(config)
 
     return new JsonUtils().groovyObjectToPrettyJsonString(podSpec)
 }
@@ -230,7 +228,6 @@ private String generatePodSpec(Map config) {
 
 private String stashWorkspace(config, prefix, boolean chown = false) {
     def stashName = "${prefix}-${config.uniqueId}"
-    echo "stashing now"
     try {
         if (chown)  {
             def securityContext = getSecurityContext(config)
@@ -246,7 +243,6 @@ chown -R ${runAsUser}:${fsGroup} ."""
             //inactive due to negative side-effects, we may require a dedicated git stash to be used
             //useDefaultExcludes: false
         )
-        echo "done stashing ${stashName}"
         return stashName
     } catch (AbortException | IOException e) {
         echo "${e.getMessage()}"
@@ -280,8 +276,7 @@ private List getContainerList(config) {
             env: getContainerEnvs(config, imageName)
         ]
 
-        def configuredCommand = config.containerCommands?.get(imageName)
-        containerSpec['command'] = '/usr/bin/tail -f /dev/null'
+         containerSpec['command'] = '/usr/bin/tail -f /dev/null'
 
         if (config.containerPortMappings?.get(imageName)) {
             def ports = []
@@ -299,7 +294,6 @@ private List getContainerList(config) {
         }
         result.push(containerSpec)
     }
-    echo "result is ${result}"
     return result
 }
 
@@ -317,7 +311,7 @@ private List getContainerEnvs(config, imageName) {
     def envVar = { e ->
         [ name: e.key, value: e.value ]
     }
-    containerEnv << envVar(key: 'test', value: 'test')
+
     if (dockerEnvVars) {
         for (String k : dockerEnvVars.keySet()) {
             containerEnv << envVar(key: k, value: dockerEnvVars[k].toString())
