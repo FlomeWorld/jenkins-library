@@ -128,7 +128,7 @@ def getOptions(config) {
     def options = [
         name      : 'dynamic-agent-' + config.uniqueId,
         label     : config.uniqueId,
-        yaml      : generatePodSpec(config)
+        yaml      : getContainerList(config)
     ]
     if (namespace) {
         options.namespace = namespace
