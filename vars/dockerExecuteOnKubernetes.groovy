@@ -126,7 +126,9 @@ void call(Map parameters = [:], body) {
 def getOptions(config) {
     return [name      : 'dynamic-agent-' + config.uniqueId,
             label     : config.uniqueId,
-            containers: getContainerList(config)]
+            containers: getContainerList(config),
+            showRawYaml: true
+           ]
 }
 
 void executeOnPod(Map config, utils, Closure body) {
