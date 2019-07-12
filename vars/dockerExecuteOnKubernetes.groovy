@@ -128,7 +128,7 @@ def getOptions(config) {
     def options = [
         name      : 'dynamic-agent-' + config.uniqueId,
         label     : config.uniqueId,
-        yaml      : getContainerList(config)
+        yaml      : generatePodSpec(config)
     ]
     if (namespace) {
         options.namespace = namespace
@@ -140,6 +140,21 @@ def getOptions(config) {
         options.showRawYaml = false
     }
     return options
+}
+private String generatePodSpec(Map config) {
+    def containers = getContainerList(config)
+    def podSpec = [
+        apiVersion: "v1",
+        kind: "Pod",
+        metadata: [
+            lables: config.uniqueId
+        ],
+        spec: [
+            containers: containers
+        ]
+    ]
+
+    return new JsonUtils().groovyObjectToPrettyJsonString(podSpec)
 }
 
 void executeOnPod(Map config, utils, Closure body) {
