@@ -154,7 +154,7 @@ private String generatePodSpec(Map config) {
         ]
     ]
 
-    return new JsonUtils().groovyObjectToPrettyJsonString(podSpec)
+    return new podSpec
 }
 
 void executeOnPod(Map config, utils, Closure body) {
