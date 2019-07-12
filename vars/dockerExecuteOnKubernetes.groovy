@@ -192,7 +192,7 @@ void executeOnPod(Map config, utils, Closure body) {
                         try {
                             utils.unstashAll(stashContent)
                             echo "unstash all ${stashContent}"
-                            echo "Container params: ${containerParams}"
+                            echo "Container params: ${containerParams} and ${config}"
                             sh "ls -lrt"
                         } finally {
                             echo "stash all"
@@ -333,7 +333,7 @@ private List getContainerEnvs(config, imageName) {
     def envVar = { e ->
         [ name: e.key, value: e.value ]
     }
-containerEnv << envVar(key: "key", value: "value")
+
     if (dockerEnvVars) {
         for (String k : dockerEnvVars.keySet()) {
             containerEnv << envVar(key: k, value: dockerEnvVars[k].toString())
@@ -348,6 +348,10 @@ containerEnv << envVar(key: "key", value: "value")
     SystemEnv systemEnv = new SystemEnv()
     for (String env : systemEnv.getEnv().keySet()) {
         containerEnv << envVar(key: env, value: systemEnv.get(env))
+    }
+     // ContainerEnv array can't be empty. Using a stub to avoid failure.	
+    if (!containerEnv) {	
+        containerEnv << envVar(key: "EMPTY_VAR", value: "EMPTY_VAR")	
     }
 
     return containerEnv
