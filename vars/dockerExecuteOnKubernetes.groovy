@@ -124,11 +124,22 @@ void call(Map parameters = [:], body) {
 }
 
 def getOptions(config) {
-    return [name      : 'dynamic-agent-' + config.uniqueId,
-            label     : config.uniqueId,
-            containers: getContainerList(config),
-            showRawYaml: true
-           ]
+    def namespace = config.jenkinsKubernetes.namespace
+    def options = [
+        name      : 'dynamic-agent-' + config.uniqueId,
+        label     : config.uniqueId,
+        yaml      : generatePodSpec(config)
+    ]
+    if (namespace) {
+        options.namespace = namespace
+    }
+    if (config.nodeSelector) {
+        options.nodeSelector = config.nodeSelector
+    }
+    if (!config.verbose) {
+        options.showRawYaml = false
+    }
+    return options
 }
 
 void executeOnPod(Map config, utils, Closure body) {
