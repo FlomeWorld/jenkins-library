@@ -222,7 +222,7 @@ private String generatePodSpec(Map config) {
             containers: containers
         ]
     ]
-    podSpec.spec.securityContext = getSecurityContext(config)
+   // podSpec.spec.securityContext = getSecurityContext(config)
 
     return new JsonUtils().groovyObjectToPrettyJsonString(podSpec)
 }
