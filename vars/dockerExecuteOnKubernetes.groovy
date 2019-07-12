@@ -191,12 +191,16 @@ void executeOnPod(Map config, utils, Closure body) {
                     container(containerParams){
                         try {
                             utils.unstashAll(stashContent)
-                            body()
+                            echo "unstash all ${stashContent}"
+                            echo "Container params: ${containerParams}"
+                            sh "ls -lrt"
                         } finally {
+                            echo "stash all"
                             stashWorkspace(config, 'container', true)
                         }
                     }
                 } else {
+                    echo "else part"
                     body()
                 }
             }
@@ -219,7 +223,7 @@ private String generatePodSpec(Map config) {
             containers: containers
         ]
     ]
-    podSpec.spec.securityContext = getSecurityContext(config)
+    //podSpec.spec.securityContext = getSecurityContext(config)
 
     return new JsonUtils().groovyObjectToPrettyJsonString(podSpec)
 }
@@ -228,13 +232,16 @@ private String generatePodSpec(Map config) {
 private String stashWorkspace(config, prefix, boolean chown = false) {
     def stashName = "${prefix}-${config.uniqueId}"
     try {
+        echo "Stash workspace"
         if (chown)  {
+            echo "changed owner and group"
             def securityContext = getSecurityContext(config)
             def runAsUser = securityContext?.runAsUser ?: 1000
             def fsGroup = securityContext?.fsGroup ?: 1000
             sh """#!${config.containerShell?:'/bin/sh'}
 chown -R ${runAsUser}:${fsGroup} ."""
         }
+        
         stash(
             name: stashName,
             includes: config.stashIncludes.workspace,
@@ -326,7 +333,7 @@ private List getContainerEnvs(config, imageName) {
     def envVar = { e ->
         [ name: e.key, value: e.value ]
     }
-
+containerEnv << envVar(key: "key", value: "value")
     if (dockerEnvVars) {
         for (String k : dockerEnvVars.keySet()) {
             containerEnv << envVar(key: k, value: dockerEnvVars[k].toString())
