@@ -140,7 +140,6 @@ void call(Map parameters = [:], body) {
             config.containerMap = ["${config.get('dockerImage')}": config.containerName]
             config.containerCommands = config.containerCommand ? ["${config.get('dockerImage')}": config.containerCommand] : null
         }
-        echo "Config in step ${config}"
         executeOnPod(config, utils, body)
     }
 }
@@ -161,7 +160,6 @@ def getOptions(config) {
     if (!config.verbose) {
         options.showRawYaml = false
     }
-    echo "Config in options ${config} and ${options}"
     return options
 }
 
@@ -193,16 +191,12 @@ void executeOnPod(Map config, utils, Closure body) {
                     container(containerParams){
                         try {
                             utils.unstashAll(stashContent)
-                            echo "unstash all ${stashContent}"
-                            echo "Container params: ${containerParams} and ${config}"
-                            sh "ls -lrt"
+                            body()
                         } finally {
-                            echo "stash all"
                             stashWorkspace(config, 'container', true)
                         }
                     }
                 } else {
-                    echo "else part"
                     body()
                 }
             }
@@ -226,7 +220,7 @@ private String generatePodSpec(Map config) {
         ]
     ]
     podSpec.spec.securityContext = getSecurityContext(config)
-   echo "Config in podSpec ${config} and ${podSpec}"
+
     return new JsonUtils().groovyObjectToPrettyJsonString(podSpec)
 }
 
@@ -234,16 +228,13 @@ private String generatePodSpec(Map config) {
 private String stashWorkspace(config, prefix, boolean chown = false) {
     def stashName = "${prefix}-${config.uniqueId}"
     try {
-        echo "Stash workspace"
         if (chown)  {
-            echo "changed owner and group"
             def securityContext = getSecurityContext(config)
             def runAsUser = securityContext?.runAsUser ?: 1000
             def fsGroup = securityContext?.fsGroup ?: 1000
             sh """#!${config.containerShell?:'/bin/sh'}
 chown -R ${runAsUser}:${fsGroup} ."""
         }
-        
         stash(
             name: stashName,
             includes: config.stashIncludes.workspace,
@@ -259,7 +250,7 @@ chown -R ${runAsUser}:${fsGroup} ."""
 }
 
 private Map getSecurityContext(Map config) {
-    return config.securityContext ?: config.jenkinsKubernetes.securityContext ?: [:]
+    return config.securityContext ?: config.jenkinsKubernetes.securityContext ?: ['1000':'1000']
 }
 
 private void unstashWorkspace(config, prefix) {
@@ -318,7 +309,6 @@ private List getContainerList(config) {
         }
         result.push(containerSpec)
     }
-     echo "Config in containerList ${config} and ${result}"
     return result
 }
 
@@ -352,10 +342,6 @@ private List getContainerEnvs(config, imageName) {
     for (String env : systemEnv.getEnv().keySet()) {
         containerEnv << envVar(key: env, value: systemEnv.get(env))
     }
-     // ContainerEnv array can't be empty. Using a stub to avoid failure.	
-    if (!containerEnv) {	
-        containerEnv << envVar(key: "EMPTY_VAR", value: "EMPTY_VAR")	
-    }
-echo "Config in containerEnv ${config} and ${containerEnv}"
+
     return containerEnv
 }
