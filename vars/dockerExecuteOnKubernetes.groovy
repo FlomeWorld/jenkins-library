@@ -279,7 +279,7 @@ private List getContainerList(config) {
         def shell = config.containerShell ?: '/bin/sh'
         if (configuredCommand == null) {
             containerSpec['command'] = [
-                '/usr/bin/tail -f /dev/null'
+                '/usr/bin/tail','-f',' /dev/null'
             ]
         } 
 
